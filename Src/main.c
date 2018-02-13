@@ -48,6 +48,8 @@
 #include <bitmap/bitmap.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "effects/rainbow.h"
+#include "effects/running_lights.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -75,8 +77,7 @@ uint32_t bswap_32(uint32_t x);
 #define LED_COUNT (120)
 #define LED_DATA_SIZE (LED_COUNT * 9)
 
-RGB_t leds[LED_COUNT];
-HSV_t ledsB[LED_COUNT];
+HSV_t leds[LED_COUNT];
 uint8_t data[LED_DATA_SIZE /*+ (9 * 1)*/ + 4];
 /* USER CODE END 0 */
 
@@ -112,14 +113,16 @@ int main(void)
   MX_USART2_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  int iteration = 0;
-  int16_t hue = 0;
-  int16_t value = 64;
-  uint8_t valueDir = 0;
-  uint8_t speed = 0;
+  unsigned int effect = 0;
 
-  //	  memset(leds, 0, sizeof(RGB_t) * LED_COUNT);
-  memset(ledsB, 0, sizeof(HSV_t) * LED_COUNT);
+  memset(leds, 0, sizeof(HSV_t) * LED_COUNT);
+
+  union Effect {
+	  RainbowCtx rainbow;
+	  RunningLightsCtx runningLights;
+  };
+
+  union Effect context = {0};
 
   /* USER CODE END 2 */
 
@@ -127,48 +130,42 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  srand(HAL_GetTick());
 
-//	  printf("Iteration > %d \n", iteration);
-//	  HAL_Delay(10);
-
-//	  printf("---> ");
-//	  printf("%d %d %d", hue, value, speed);
-	  for (int i = 0; i < LED_COUNT; i++) {
-		  ledsB[i].h = hue + (360 / LED_COUNT) * i;
-		  ledsB[i].s = 128; // 0 - light 200 - saturation
-		  ledsB[i].v = value; // 0 - dark  200 - light
+	  unsigned int nextEffect = rand() % 2;
+	  if (effect != nextEffect) {
+		  memset(&context, 0, sizeof(context));
 	  }
-//	  printf("\n ");
-	  hue++;
-	  if (hue >= 360) {
-		  hue -= 360;
+	  effect = nextEffect;
 
-		  srand(HAL_GetTick());
-		  speed = rand() % 25;
+	  uint32_t delay = 0;
+
+	  unsigned int iterationTarget = 500 + rand() % 10000;
+	  unsigned int iteration = 0;
+	  while (iteration < iterationTarget) {
+		  switch (effect) {
+		  case 0:
+			  rainbow(&context.rainbow, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 1:
+			  running_lights(&context.runningLights, leds, LED_COUNT);
+			  delay = context.runningLights.delay;
+			  break;
+		  default:
+			  iteration = UINT16_MAX;
+			  printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+		  }
+
+		  HAL_Delay(delay);
+		  paintHSV(leds, LED_COUNT);
+
+		  iteration++;
 	  }
-
-	  if (iteration % 90 == 0) {
-			if (valueDir == 0) {
-				value++;
-				if (value > (128 + 32)) {
-					valueDir = 1;
-				}
-			} else {
-				value--;
-				if (value < 64) {
-					valueDir = 0;
-				}
-			}
-		}
-
-	  HAL_Delay(speed);
-
-	  paintHSV(ledsB, LED_COUNT);
 
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  iteration++;
   }
   /* USER CODE END 3 */
 
@@ -316,10 +313,6 @@ void set(uint8_t *data, uint16_t index, RGB_t *color) {
 	uint8_t _r = LEDGamma(color->r);
 	uint8_t _g = LEDGamma(color->g);
 	uint8_t _b = LEDGamma(color->b);
-
-//	if (_r == UINT8_MAX || _g == UINT8_MAX || _b == UINT8_MAX) {
-//		printf("->>>>>>> %d %d %d \n", _r, _g, _b);
-//	}
 
 	uint32_t R = ((0x00000004 | (((_r >> 0) & 0x1) << 1)) << (3 * 0 + 8))
 			| ((0x00000004 | (((_r >> 1) & 0x1) << 1)) << (3 * 1 + 8))
