@@ -140,6 +140,7 @@ int main(void)
 
 	  uint32_t delay = 0;
 
+	  unsigned int iterationTarget = 800 + rand() % 20000;
 	  unsigned int iteration = 0;
 	  while (iteration < iterationTarget) {
 		  switch (effect) {
