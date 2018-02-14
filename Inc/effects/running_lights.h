@@ -18,7 +18,6 @@ typedef struct RunningLightsCtx {
 	int16_t value;
 	uint8_t valueDirection;
 	uint8_t gradation;
-	uint8_t gradationTarget;
 
 	uint16_t iteration;
 

@@ -132,7 +132,7 @@ int main(void)
   {
 	  srand(HAL_GetTick());
 
-	  unsigned int nextEffect = rand() % 2;
+	  unsigned int nextEffect = rand() % 5;
 	  if (effect != nextEffect) {
 		  memset(&context, 0, sizeof(context));
 	  }
@@ -140,15 +140,23 @@ int main(void)
 
 	  uint32_t delay = 0;
 
-	  unsigned int iterationTarget = 500 + rand() % 10000;
 	  unsigned int iteration = 0;
 	  while (iteration < iterationTarget) {
 		  switch (effect) {
 		  case 0:
-			  rainbow(&context.rainbow, leds, LED_COUNT);
+			  rainbow(&context.rainbow, 1, leds, LED_COUNT);
 			  delay = context.rainbow.delay;
 			  break;
 		  case 1:
+			  rainbow(&context.rainbow, 2, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 2:
+			  rainbow(&context.rainbow, 3, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 3:
+		  case 4:
 			  running_lights(&context.runningLights, leds, LED_COUNT);
 			  delay = context.runningLights.delay;
 			  break;

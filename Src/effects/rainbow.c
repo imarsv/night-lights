@@ -12,11 +12,11 @@
 #include <stdio.h>
 #include "effects/rainbow.h"
 
-void rainbow(RainbowCtx* ctx, HSV_t *leds, uint16_t size) {
+void rainbow(RainbowCtx* ctx, uint8_t mode, HSV_t *leds, uint16_t size) {
 
 	for (int i = 0; i < size; i++) {
-		leds[i].h = ctx->hue + (360 / size) * i;
-		leds[i].s = 128; // 0 - light 200 - saturation
+		leds[i].h = ctx->hue + (360 / size * mode) * i;
+		leds[i].s = 128 + 64; // 0 - light 200 - saturation
 		leds[i].v = ctx->value; // 0 - dark  200 - light
 	}
 

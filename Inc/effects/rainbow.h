@@ -21,6 +21,6 @@ typedef struct RainbowCtx {
   uint8_t delayTarget;
 } RainbowCtx;
 
-void rainbow(RainbowCtx* ctx, HSV_t *leds, uint16_t size);
+void rainbow(RainbowCtx* ctx, uint8_t mode, HSV_t *leds, uint16_t size);
 
 #endif /* EFFECTS_RAINBOW_H_ */

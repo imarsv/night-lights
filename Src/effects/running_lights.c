@@ -9,8 +9,8 @@
 
 #include <effects/running_lights.h>
 
-#define MAX_VALUE (128 + 64 + 32)
-#define MIN_VALUE (64)
+#define MAX_VALUE (128 + 64)
+#define MIN_VALUE (32 + 16)
 #define GRADATION_COUNT_VALUE (5)
 
 void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
@@ -23,13 +23,12 @@ void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
 		ctx->hue = rand() % 360;
 		ctx->value = MIN_VALUE;
 		ctx->valueDirection = 1;
-		ctx->gradation = 1;
-		ctx->gradationTarget = 1 + rand() % 6;
+		ctx->gradation = 2 + rand() % 3;
 	}
 
 	leds[0].h = ctx->hue;
 	leds[0].v = ctx->value;
-	leds[0].s = 128;
+	leds[0].s = 128 + 64;
 
 	if (ctx->valueDirection) {
 		ctx->value += (MAX_VALUE - MIN_VALUE) / ctx->gradation;
@@ -42,9 +41,11 @@ void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
 	}
 
 	if (ctx->valueDirection == 0 && ctx->value < MIN_VALUE) {
-		ctx->hue = rand() % 360;
+		ctx->hue = ctx->hue + rand() % 90 + rand() % 90 + rand() % 90;
+		while (ctx->hue > 360) { ctx->hue -= 360; };
 		ctx->value = MIN_VALUE;
 		ctx->valueDirection = 1;
+		ctx->gradation = 2 + rand() % 3;
 	}
 
 //	printf("iteration: %-4d  delay: %-2d=>%-2d  hue: %-3d  value: %-3d  gradation: %-2d=>%-2d \n ",
@@ -55,7 +56,7 @@ void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
 
 	if (ctx->iteration % (size / 5) == 0) {
 		if (ctx->delay == ctx->delayTarget) {
-			ctx->delayTarget = 15 + rand() % 50;
+			ctx->delayTarget = 15 + rand() % 100;
 		}
 
 		if (ctx->delay == 0) {
@@ -66,18 +67,6 @@ void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
 			ctx->delay--;
 		} else if (ctx->delay < ctx->delayTarget) {
 			ctx->delay++;
-		}
-	}
-
-	if (ctx->iteration % (size * 2) == 0) {
-		if (ctx->gradation > ctx->gradationTarget) {
-			ctx->gradation--;
-		} else if (ctx->gradation < ctx->gradationTarget) {
-			ctx->gradation++;
-		}
-
-		if (ctx->gradation == ctx->gradationTarget) {
-			ctx->gradationTarget = 1 + rand() % 6;
 		}
 	}
 
