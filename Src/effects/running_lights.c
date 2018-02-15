@@ -56,7 +56,7 @@ void running_lights(RunningLightsCtx* ctx, HSV_t *leds, uint16_t size) {
 
 	if (ctx->iteration % (size / 5) == 0) {
 		if (ctx->delay == ctx->delayTarget) {
-			ctx->delayTarget = 15 + rand() % 100;
+			ctx->delayTarget = 20 + rand() % 100;
 		}
 
 		if (ctx->delay == 0) {

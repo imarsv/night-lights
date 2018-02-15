@@ -132,45 +132,56 @@ int main(void)
   {
 	  srand(HAL_GetTick());
 
-	  unsigned int nextEffect = rand() % 5;
+	  uint32_t delay = 0;
+
+	  uint32_t effectDuration = (60 + rand() % (60 * 10)) * 1000;
+	  uint32_t tickstart = HAL_GetTick();
+	  while ((HAL_GetTick() - tickstart) < effectDuration) {
+		  switch (effect) {
+		  case 12:
+		  case 6:
+		  case 0:
+			  rainbow(&context.rainbow, 1, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 13:
+		  case 7:
+		  case 1:
+			  rainbow(&context.rainbow, 2, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 14:
+		  case 8:
+		  case 2:
+			  rainbow(&context.rainbow, 3, leds, LED_COUNT);
+			  delay = context.rainbow.delay;
+			  break;
+		  case 15:
+		  case 16:
+		  case 17:
+		  case 9:
+		  case 10:
+		  case 11:
+		  case 3:
+		  case 4:
+		  case 5:
+			  running_lights(&context.runningLights, leds, LED_COUNT);
+			  delay = context.runningLights.delay;
+			  break;
+		  default:
+			  effectDuration = 0;
+		  }
+
+		  HAL_Delay(delay);
+		  paintHSV(leds, LED_COUNT);
+	  }
+
+	  unsigned int nextEffect = rand() % 18;
 	  if (effect != nextEffect) {
 		  memset(&context, 0, sizeof(context));
 	  }
 	  effect = nextEffect;
 
-	  uint32_t delay = 0;
-
-	  unsigned int iterationTarget = 800 + rand() % 20000;
-	  unsigned int iteration = 0;
-	  while (iteration < iterationTarget) {
-		  switch (effect) {
-		  case 0:
-			  rainbow(&context.rainbow, 1, leds, LED_COUNT);
-			  delay = context.rainbow.delay;
-			  break;
-		  case 1:
-			  rainbow(&context.rainbow, 2, leds, LED_COUNT);
-			  delay = context.rainbow.delay;
-			  break;
-		  case 2:
-			  rainbow(&context.rainbow, 3, leds, LED_COUNT);
-			  delay = context.rainbow.delay;
-			  break;
-		  case 3:
-		  case 4:
-			  running_lights(&context.runningLights, leds, LED_COUNT);
-			  delay = context.runningLights.delay;
-			  break;
-		  default:
-			  iteration = UINT16_MAX;
-			  printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-		  }
-
-		  HAL_Delay(delay);
-		  paintHSV(leds, LED_COUNT);
-
-		  iteration++;
-	  }
 
   /* USER CODE END WHILE */
 
